@@ -56,8 +56,43 @@ class PySigfox:
 
     def device_messages(self, device_id):
         """Return array of messages from device with ID defined in device_id.
+           Limit of 100 is the maximum Sigfox API will accept.
 
         """
-        url = self.api_url + 'devices/' + device_id + '/messages'
+        out = []
+
+        url = self.api_url + 'devices/' + device_id + '/messages?limit=100'
         r = requests.get(url, auth=requests.auth.HTTPBasicAuth(self.login, self.password))
-        return json.loads(r.text)['data']
+        pprint(json.loads(r.text)['paging']['next'])
+
+        try:
+            out.extend(json.loads(r.text)['data'])
+            pass
+        except Exception as e:
+            raise
+
+        try:
+            json.loads(r.text)['paging']['next']
+            print("Loading next page...")
+            out.extend(self.device_messages_page(json.loads(r.text)['paging']['next']))
+        except Exception as e:
+             # print("No paging")
+             raise
+
+        return out
+
+    def device_messages_page(self, url):
+        """Return array of message from paging URL.
+
+        """
+        out = []
+        r = requests.get(url, auth=requests.auth.HTTPBasicAuth(self.login, self.password))
+        out.extend(json.loads(r.text)['data'])
+        try:
+            json.loads(r.text)['paging']['next']
+            out.extend(self.device_messages_page(json.loads(r.text)['paging']['next']))
+        except Exception as e:
+            # no more pages
+            pass
+
+        return out
