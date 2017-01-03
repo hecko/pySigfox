@@ -11,8 +11,6 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
-
-
 Indices and tables
 ==================
 
@@ -24,4 +22,14 @@ About
 =====
 
 PySigfox is a very simple Sigfox API Python class. This class interacts with Sigfox backend HTTP / REST API
-to get information about device types, devices, messages etc. Its now being heavily extended on a weekly basis.
+to get information about device types, devices, messages etc...
+
+
+API Docs
+========
+
+.. autoclass:: pySigfox.pySigfox
+   :members: 
+   :undoc-members:
+   :private-members:
+   :inherited-members:

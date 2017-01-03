@@ -4,12 +4,12 @@ import os
 import sys
 from pprint import pprint
 
-import PySigfox.PySigfox as SF
+import pySigfox
 
-login = os.getenv('SIGFOX_API_LOGIN')
-password = os.getenv('SIGFOX_API_PASSWORD')
+login = os.getenv('SIGFOX_LOGIN')
+password = os.getenv('SIGFOX_PASSWORD')
 
-s = SF.PySigfox(login, password)
+s = pySigfox.pySigfox(login, password)
 
 try:
     s.login_test()

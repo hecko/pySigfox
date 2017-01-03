@@ -6,11 +6,10 @@ import json
 import requests
 from pprint import pprint
 
-class PySigfox:
+class pySigfox:
     def __init__(self, login, password):
         if not login or not password:
-            print("Please define login and password when initiating PySigfox class!")
-            sys.exit(1)
+            raise Exception("Please define login and password when initiating pySigfox class!")
         self.login    = login
         self.password = password
         self.api_url  = 'https://backend.sigfox.com/api/'
