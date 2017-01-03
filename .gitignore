@@ -1,1 +1,3 @@
 *.pyc
+dist
+pySigfox.egg-info
