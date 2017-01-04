@@ -37,7 +37,12 @@ class pySigfox:
     def device_list(self, device_type_id = 0):
         """Return array of dictionaries - one array item per device.
 
-        If device_type_id is not set devices of all device types are returned!
+        :param device_type_id: Return only devices of a certain type ID.
+            If set to 0 returns all devices of all types (default)! 
+        :type device_type_id: int
+        :return: List of dictionaries 
+        :rtype: list
+
         """
         device_type_ids = []
         out = []
@@ -54,13 +59,15 @@ class pySigfox:
         return out
 
     def device_messages(self, device_id):
-        """Return array of messages from device with ID defined in device_id.
-           Limit of 100 is the maximum Sigfox API will accept.
+        """Return array of 100 last messages from device.
+           
+        :param device_id: ID of the device
+        :type device_id: str
 
         """
         out = []
 
-        url = self.api_url + 'devices/' + device_id + '/messages?limit=100'
+        url = self.api_url + 'devices/' + str(device_id) + '/messages?limit=100'
         r = requests.get(url, auth=requests.auth.HTTPBasicAuth(self.login, self.password))
         pprint(json.loads(r.text)['paging']['next'])
 
@@ -72,11 +79,10 @@ class pySigfox:
 
         try:
             json.loads(r.text)['paging']['next']
-            print("Loading next page...")
+            print("Loading next page of messages for " + str(device_id) + "...")
             out.extend(self.device_messages_page(json.loads(r.text)['paging']['next']))
         except Exception as e:
-             # print("No paging")
-             raise
+            raise
 
         return out
 
