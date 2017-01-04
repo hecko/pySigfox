@@ -4,6 +4,8 @@ import os
 import sys
 from pprint import pprint
 
+sys.path.insert(0, os.path.abspath('./modules'))
+
 import pySigfox
 
 login = os.getenv('SIGFOX_LOGIN')
@@ -20,7 +22,5 @@ for device_type_id in s.device_types_list():
         pprint(device)
         last_device = device
 
-print("== Messages for " + last_device['name'] + ":")
-messages = s.device_messages(last_device['id'])
-pprint(messages)
-print("Number of messages: " + str(len(messages)))
+print("== Last 3 messages from " + last_device['name'] + ":")
+pprint(s.device_messages(last_device['id'], limit=3))

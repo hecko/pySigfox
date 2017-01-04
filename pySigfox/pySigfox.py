@@ -58,29 +58,21 @@ class Sigfox:
             out.extend(json.loads(r.text)['data'])
         return out
 
-    def device_messages(self, device_id):
-        """Return array of 100 last messages from device.
+    def device_messages(self, device_id, limit=10):
+        """Return array of 10 last messages from specific device.
            
         :param device_id: ID of the device
         :type device_id: str
+        :param limit: how many messages to retrieve - max limit 100
+        :type limit: int
 
         """
-        out = []
 
-        url = self.api_url + 'devices/' + str(device_id) + '/messages?limit=100'
+        url = self.api_url + 'devices/' + str(device_id) + '/messages?limit=' + str(limit)
         r = requests.get(url, auth=requests.auth.HTTPBasicAuth(self.login, self.password))
-        pprint(json.loads(r.text)['paging']['next'])
 
         try:
-            out.extend(json.loads(r.text)['data'])
-            pass
-        except Exception as e:
-            raise
-
-        try:
-            json.loads(r.text)['paging']['next']
-            print("Loading next page of messages for " + str(device_id) + "...")
-            out.extend(self.device_messages_page(json.loads(r.text)['paging']['next']))
+            out = json.loads(r.text)['data']
         except Exception as e:
             raise
 
