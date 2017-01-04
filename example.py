@@ -9,7 +9,7 @@ import pySigfox
 login = os.getenv('SIGFOX_LOGIN')
 password = os.getenv('SIGFOX_PASSWORD')
 
-s = pySigfox.pySigfox(login, password)
+s = pySigfox.Sigfox(login, password)
 
 try:
     s.login_test()

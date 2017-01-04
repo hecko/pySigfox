@@ -6,7 +6,7 @@ import json
 import requests
 from pprint import pprint
 
-class pySigfox:
+class Sigfox:
     def __init__(self, login, password):
         if not login or not password:
             raise Exception("Please define login and password when initiating pySigfox class!")
