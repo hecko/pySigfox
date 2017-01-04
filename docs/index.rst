@@ -28,7 +28,7 @@ to get information about device types, devices, messages etc...
 API Docs
 ========
 
-.. autoclass:: pySigfox.pySigfox
+.. autoclass:: pySigfox.Sigfox
    :members: 
    :undoc-members:
    :private-members:
