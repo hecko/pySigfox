@@ -11,13 +11,8 @@ password = os.getenv('SIGFOX_PASSWORD')
 
 s = pySigfox.Sigfox(login, password)
 
-try:
-    s.login_test()
-    print("API login OK")
-except Exception as e:
-    print(str(e))
-    sys.exit(1)
-
+s.login_test()
+print("API login OK")
 
 print("Getting list of all devices:")
 for device_type_id in s.device_types_list():
