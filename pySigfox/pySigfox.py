@@ -110,17 +110,16 @@ class Sigfox:
             raise
         return out
 
-    def device_messages(self, device_id, limit=10):
+    def device_messages(self, device, limit=10):
         """Return array of 10 last messages from specific device.
            
-        :param device_id: ID of the device
-        :type device_id: str
+        :param device: Device object
         :param limit: how many messages to retrieve - max limit 100
         :type limit: int
 
         """
 
-        url = self.api_url + 'devices/' + str(device_id) + '/messages?limit=' + str(limit)
+        url = self.api_url + 'devices/' + str(device['id']) + '/messages?limit=' + str(limit)
         r = requests.get(url, auth=requests.auth.HTTPBasicAuth(self.login, self.password))
 
         try:

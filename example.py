@@ -17,10 +17,10 @@ s.login_test()
 print("API login OK")
 
 print("Getting list of all devices:")
-for device_type_id in s.device_types_list():
-    for device in s.device_list(device_type_id):
+for device_type in s.device_types_list():
+    for device in s.device_list(device_type):
         pprint(device)
         last_device = device
 
 print("== Last 3 messages from " + last_device['name'] + ":")
-pprint(s.device_messages(last_device['id'], limit=3))
+pprint(s.device_messages(last_device, limit=3))
