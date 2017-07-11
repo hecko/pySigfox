@@ -7,12 +7,13 @@ import requests
 from pprint import pprint
 
 class Sigfox:
-    def __init__(self, login, password):
+    def __init__(self, login, password, debug=False):
         if not login or not password:
             raise Exception("Please define login and password when initiating pySigfox class!")
         self.login    = login
         self.password = password
         self.api_url  = 'https://backend.sigfox.com/api/'
+        self.debug = debug
 
     def login_test(self):
         """Try to login into the  Sigfox backend API - if unauthorized or any other issue raise Exception
@@ -24,38 +25,89 @@ class Sigfox:
             raise Exception("Unable to login to Sigfox API: " + str(r.status_code))
 
     def device_types_list(self):
-        """Return list of device types IDs
+        """Return list of device types dictionaries
 
         """
         out = []
         url = self.api_url + 'devicetypes'
         r = requests.get(url, auth=requests.auth.HTTPBasicAuth(self.login, self.password))
         for device in json.loads(r.text)['data']:
-            out.append(device['id'])
+            out.append(device)
         return out
 
-    def device_list(self, device_type_id = 0):
+    def groups_list(self):
+        """Return list of groups
+
+        """
+        out = []
+        url = self.api_url + 'groups'
+        if self.debug:
+            print("Connecting to " + url)
+        r = requests.get(url, auth=requests.auth.HTTPBasicAuth(self.login, self.password))
+        if self.debug:
+            pprint(r.text)
+        for group in json.loads(r.text)['data']:
+            out.append(group)
+        return out
+
+    def device_create(self, device, cert, devicetype):
+        """Add new device to a device type
+
+        """
+        if self.debug:
+            print("Adding device " + str(device['id']) + " to device type " + str(devicetype['name']))
+        to_post = {
+                    'prefix': 'api_added-',
+                    'ids': [
+                             { 'id': device['id'], 'pac': device['pac'] },
+                           ],
+                    'productCertificate': cert, 
+                  }
+        url = self.api_url + devicetype['id'] + '/devices/bulk/create/async'
+        if self.debug:
+            print("Connecting to " + url)
+            print("Posting following data:")
+            pprint(to_post)
+        r = requests.post(url,
+                          auth=requests.auth.HTTPBasicAuth(self.login, self.password),
+                          json = to_post)
+        if self.debug:
+            pprint("Response: " + str(r.text))
+        return r
+
+    def device_types_create(self, new):
+        """Create new device type
+
+        """
+        dtype = {
+                  'name': 'test1',
+                  'contractId': 'moire_la_30f0_30f1' 
+                }
+        url = self.api_url + 'devicetypes/create'
+        if self.debug:
+            print("Connecting to " + url)
+        r = requests.post(url, auth=requests.auth.HTTPBasicAuth(self.login, self.password), data = dtype)
+        return r
+
+    def device_list(self, device_type):
         """Return array of dictionaries - one array item per device.
 
-        :param device_type_id: Return only devices of a certain type ID.
-            If set to 0 returns all devices of all types (default)! 
-        :type device_type_id: int
+        :param device_type: Return only devices of a certain type.
+            This is a object from device_groups_list()
         :return: List of dictionaries 
         :rtype: list
 
         """
         device_type_ids = []
         out = []
-        if device_type_id != 0:
-            device_type_ids.append(device_type_id)
-        else:
-            device_type_ids = self.device_types_list()
-
-        for device_type_id in device_type_ids:
-            # print("Getting data for device type id " + device_type_id)
-            url = self.api_url + 'devicetypes/' + device_type_id + '/devices'
-            r = requests.get(url, auth=requests.auth.HTTPBasicAuth(self.login, self.password))
+        url = self.api_url + 'devicetypes/' + device_type['id'] + '/devices'
+        r = requests.get(url, auth=requests.auth.HTTPBasicAuth(self.login, self.password))
+        try:
             out.extend(json.loads(r.text)['data'])
+        except Exception as e:
+            print("Unable to access data from returned RESP API call: " + str(e))
+            pprint(r.text)
+            raise
         return out
 
     def device_messages(self, device_id, limit=10):
@@ -74,6 +126,7 @@ class Sigfox:
         try:
             out = json.loads(r.text)['data']
         except Exception as e:
+            pprint(r.text)
             raise
 
         return out

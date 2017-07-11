@@ -3,3 +3,4 @@ example_in_docker.sh
 *.pyc
 dist
 pySigfox.egg-info
+real.py
