@@ -57,13 +57,13 @@ class Sigfox:
         if self.debug:
             print("Adding device " + str(device['id']) + " to device type " + str(devicetype['name']))
         to_post = {
-                    'prefix': 'api_added-',
-                    'ids': [
-                             { 'id': device['id'], 'pac': device['pac'] },
+                    "prefix": "api_added-",
+                    "ids": [
+                             { "id": str(device['id']), "pac": str(device['pac']) },
                            ],
-                    'productCertificate': cert, 
+                    "productCertificate": str(cert), 
                   }
-        url = self.api_url + devicetype['id'] + '/devices/bulk/create/async'
+        url = self.api_url + "devicetypes/" + devicetype['id'] + '/devices/bulk/create/async'
         if self.debug:
             print("Connecting to " + url)
             print("Posting following data:")
@@ -73,7 +73,7 @@ class Sigfox:
                           json = to_post)
         if self.debug:
             pprint("Response: " + str(r.text))
-        return r
+        return r.json()
 
     def device_types_create(self, new):
         """Create new device type
