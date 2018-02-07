@@ -35,6 +35,21 @@ class Sigfox:
             out.append(device)
         return out
 
+    def device_info(self, device_id):
+        """Return information about specific device
+
+        """
+        out = []
+        url = self.api_url + 'devices/' + str(device_id)
+        if self.debug:
+            print("Connecting to " + url)
+        r = requests.get(url, auth=requests.auth.HTTPBasicAuth(self.login, self.password))
+        try:
+            return json.loads(r.text)
+        except Exception as e:
+            pprint(r.text)
+            raise
+
     def groups_list(self):
         """Return list of groups
 
@@ -55,11 +70,11 @@ class Sigfox:
 
         """
         if self.debug:
-            print("Adding device " + str(device['id']) + " to device type " + str(devicetype['name']))
+            print("Adding device " + device['id'] + " to device type " + devicetype['name'])
         to_post = {
                     "prefix": "api_added-",
                     "ids": [
-                             { "id": str(device['id']), "pac": str(device['pac']) },
+                             { 'id': device['id'], 'pac': device['pac'] },
                            ],
                     "productCertificate": str(cert), 
                   }
