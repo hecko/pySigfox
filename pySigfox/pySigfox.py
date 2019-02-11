@@ -12,28 +12,38 @@ class Sigfox:
             raise Exception("Please define login and password when initiating pySigfox class!")
         self.login    = login
         self.password = password
-        self.api_url  = 'https://backend.sigfox.com/api/'
+        self.api_url  = 'https://api.sigfox.com/v2/'
         self.debug = debug
 
     def login_test(self):
         """Try to login into the  Sigfox backend API - if unauthorized or any other issue raise Exception
 
         """
-        url = self.api_url + 'devicetypes'
+        url = self.api_url + 'device-types'
         r = requests.get(url, auth=requests.auth.HTTPBasicAuth(self.login, self.password))
         if r.status_code != 200:
-            raise Exception("Unable to login to Sigfox API: " + str(r.status_code))
+            raise Exception("Unable to login to Sigfox API ({}): {}".format(url, r.status_code))
 
     def device_types_list(self):
         """Return list of device types dictionaries
 
         """
         out = []
-        url = self.api_url + 'devicetypes'
+        url = self.api_url + 'device-types'
         r = requests.get(url, auth=requests.auth.HTTPBasicAuth(self.login, self.password))
         for device in json.loads(r.text)['data']:
             out.append(device)
         return out
+
+    def device_rename(self, device_id, new_name):
+        """Rename specific device
+
+        """
+        out = []
+        url = self.api_url + 'devices/' + str(device_id)
+        if self.debug:
+            print("Connecting to " + url)
+        r = requests.put(url, auth=requests.auth.HTTPBasicAuth(self.login, self.password), json={'name': new_name})
 
     def device_info(self, device_id):
         """Return information about specific device
@@ -96,7 +106,7 @@ class Sigfox:
         """
         dtype = {
                   'name': 'test1',
-                  'contractId': 'moire_la_30f0_30f1' 
+                  'contractId': 'moire_la_30f0_30f1'
                 }
         url = self.api_url + 'devicetypes/create'
         if self.debug:
@@ -109,13 +119,13 @@ class Sigfox:
 
         :param device_type: Return only devices of a certain type.
             This is a object from device_groups_list()
-        :return: List of dictionaries 
+        :return: List of dictionaries
         :rtype: list
 
         """
         device_type_ids = []
         out = []
-        url = self.api_url + 'devicetypes/' + device_type['id'] + '/devices'
+        url = self.api_url + 'devices?deviceTypeId=' + device_type['id']
         r = requests.get(url, auth=requests.auth.HTTPBasicAuth(self.login, self.password))
         try:
             out.extend(json.loads(r.text)['data'])
@@ -127,7 +137,7 @@ class Sigfox:
 
     def device_messages(self, device, limit=10):
         """Return array of 10 last messages from specific device.
-           
+
         :param device: Device object
         :param limit: how many messages to retrieve - max limit 100
         :type limit: int
